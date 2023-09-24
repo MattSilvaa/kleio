@@ -1,7 +1,7 @@
 package main
 
 import (
-	database "github.com/MattSilvaa/kleio/server/database"
+	"github.com/MattSilvaa/kleio/server/database"
 	"log"
 )
 

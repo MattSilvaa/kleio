@@ -1,30 +1,34 @@
 package database
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
-func create() (*sql.DB, error) {
-	db, err := sql.Open("mysql", "username:password@tcp(host:port)/database-name")
-
+func create() error {
+	db, err := sql.Open("mysql", "root:password@tcp(localhost:3306)/")
 	if err != nil {
-		return nil, err
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS kleio")
+	if err != nil {
+		return err
 	}
 
-	return db, nil
+	fmt.Println("Database 'kleio' created (if it didn't exist)")
+	return nil
 }
 
 func connect() (*sql.DB, error) {
-	db, err := sql.Open("mysql", "username:password@tcp(host:port)/database-name")
-
+	db, err := sql.Open("mysql", "root:password@tcp(localhost:3306)/kleio")
 	if err != nil {
 		return nil, err
 	}
 
-	return db, nil
-}
-
-func delete() (*sql.DB, error) {
-	db, err := sql.Open("mysql", "username:password@tcp(host:port)/database-name")
-
+	// Test the connection
+	err = db.Ping()
 	if err != nil {
 		return nil, err
 	}
