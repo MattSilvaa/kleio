@@ -6,9 +6,15 @@ import (
 )
 
 func main() {
-	db, err := database.connect()
+	err := database.Create()
 	if err != nil {
-		log.Fatalf("Error connecting to the database:\t%v\n", err)
+		log.Fatalf("Failed to create database:\t%v\n", err)
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		log.Fatalf("Failed to connect to database:\t%v\n", err)
 	}
 	defer db.Close()
+	database.Delete()
 }
