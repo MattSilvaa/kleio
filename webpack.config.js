@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: './client/src/index.tsx',
@@ -10,9 +11,9 @@ module.exports = {
         static: {
             directory: path.resolve(__dirname, 'dist'),
         },
-        compress: true,
         port: 3000,
     },
+    plugins: [new HtmlWebpackPlugin({ template: './client/src/index.html' })],
     module: {
         rules: [
             {
