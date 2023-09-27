@@ -13,18 +13,20 @@ module.exports = {
         },
         port: 3000,
     },
-    plugins: [new HtmlWebpackPlugin({ template: './client/src/index.html' })],
+    plugins: [new HtmlWebpackPlugin({template: './client/src/index.html'})],
     module: {
         rules: [
             {
-                test: /\.ts./,
+                test: /\.ts(x?)$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-react'],
+                use: [
+                    {
+                        loader: 'babel-loader'
                     },
-                },
+                    {
+                        loader: 'ts-loader'
+                    }
+                ]
             },
         ],
     },

@@ -2,7 +2,8 @@
   "name": "kleio",
   "version": "1.0.0",
   "dependencies": {
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "typescript": "^5.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
@@ -17,7 +18,8 @@
     "html-webpack-plugin": "^5.5.3",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.1",
+    "ts-loader": "^9.4.4"
   },
   "scripts": {
     "build-client": "bun build client/src/index.tsx --outdir ./dist",

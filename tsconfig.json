@@ -12,8 +12,6 @@
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "bundler",
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
     "moduleDetection": "force",
     "jsx": "react",
     "allowJs": true,
@@ -24,8 +22,8 @@
     "sourceMap": true
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
+    "client/src/**/*.ts",
+    "client/src/**/*.tsx"
   ],
   "ex": [
     "node_modules"
