@@ -10,7 +10,7 @@
       "ESNext"
     ],
     "module": "ESNext",
-    "target": "ESNext",
+    "target": "ES2022",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "jsx": "react",

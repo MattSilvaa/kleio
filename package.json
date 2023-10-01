@@ -26,6 +26,7 @@
   "scripts": {
     "build-client": "bun build client/src/index.tsx --outdir ./dist",
     "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --fix",
     "start": "webpack-dev-server --mode development",
     "postinstall": "(cd client && bun install)"
   }

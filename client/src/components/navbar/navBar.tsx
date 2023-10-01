@@ -1,33 +1,41 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import SearchIcon from '@mui/icons-material/Search';
+import * as React from 'react'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import Container from '@mui/material/Container'
+import Button from '@mui/material/Button'
+import {noop} from 'lodash'
+import SearchIcon from '@mui/icons-material/Search'
 import {navBarTheme} from '../theme'
-import {ThemeProvider} from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import {ThemeProvider} from '@mui/material'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
-const pages = ['About', 'FAQ', 'Blog'];
+const pages = ['About', 'FAQ', 'Contact Us']
 
 export const NavBar = () => {
+    const isMobile = useMediaQuery('(max-width:600px)')
 
     return (
         <ThemeProvider theme={navBarTheme}>
             <AppBar position="static">
-                <Container maxWidth="xl">
-                    <Toolbar disableGutters>
-                        <SearchIcon sx={{display: {xs: 'none', md: 'flex'}, mr: 1}}/>
+                <Toolbar>
+                    <Container
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: isMobile ? 'center' : 'flex-start',
+                            flexDirection: isMobile ? 'column' : 'row',
+                        }}
+                    >
+                        <SearchIcon sx={{display: 'flex', mr: 1}}/>
                         <Typography
                             variant="h6"
                             noWrap
                             component="a"
                             href="#app-bar-with-responsive-menu"
                             sx={{
+                                display: 'flex',
                                 mr: 2,
-                                display: {xs: 'none', md: 'flex'},
                                 fontFamily: 'monospace',
                                 fontWeight: 700,
                                 letterSpacing: '.3rem',
@@ -37,21 +45,32 @@ export const NavBar = () => {
                         >
                             Kleio
                         </Typography>
-                            <Box sx={{flexGrow: 12, display: {xs: 'none', md: 'flex'}}}>
-                                {pages.map((page) => (
-                                    <Button
-                                        key={page}
-                                        onClick={() => {
-                                        }}
-                                        sx={{my: 2, color: 'white', display: 'block'}}
-                                    >
-                                        {page}
-                                    </Button>
-                                ))}
-                            </Box>
-                    </Toolbar>
-                </Container>
+                    </Container>
+                    <Container
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: isMobile ? 'center' : 'flex-end',
+                            gap: 5,
+                            flexDirection: isMobile ? 'column' : 'row',
+                        }}
+                    >
+                        {pages.map((page) => (
+                            <Button
+                                key={page}
+                                onClick={noop}
+                                sx={{
+                                    my: 2,
+                                    color: 'white',
+                                    display: isMobile ? 'block' : 'inline-block',
+                                }}
+                            >
+                                {page}
+                            </Button>
+                        ))}
+                    </Container>
+                </Toolbar>
             </AppBar>
         </ThemeProvider>
-    );
+    )
 }
