@@ -4,11 +4,16 @@ import time
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from selenium import webdriver
-from selenium.common import TimeoutException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.service import Service
+
+service = Service()
+options = webdriver.ChromeOptions()
+driver = webdriver.Chrome(service=service, options=options)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,7 +23,6 @@ LINKEDIN_USER = os.getenv('LINKEDIN_USER')
 LINKEDIN_PW = os.getenv('LINKEDIN_PW')
 
 # Initialize Selenium WebDriver
-driver = webdriver.Chrome()
 
 try:
     # Navigate to LinkedIn Login Page

@@ -1,5 +1,3 @@
-os
-ime
 bs4
-dotenv
+python-dotenv
 selenium

@@ -16,5 +16,7 @@ func main() {
 		log.Fatalf("Failed to connect to database:\t%v\n", err)
 	}
 	defer db.Close()
+	database.GetTotalJobs()
+
 	database.Delete()
 }
