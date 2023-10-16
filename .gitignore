@@ -19,7 +19,7 @@ dist/
 go.work
 
 # Block any environment variables
-scraper/.env
+**/.env
 
 
  __pycache__/

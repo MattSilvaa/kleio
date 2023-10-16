@@ -2,21 +2,26 @@ package main
 
 import (
 	"github.com/MattSilvaa/kleio/server/database"
+	"github.com/MattSilvaa/kleio/server/models"
 	"log"
 )
 
 func main() {
-	err := database.Create()
-	if err != nil {
-		log.Fatalf("Failed to create database:\t%v\n", err)
-	}
-
 	db, err := database.Connect()
-	if err != nil {
-		log.Fatalf("Failed to connect to database:\t%v\n", err)
-	}
 	defer db.Close()
-	database.GetTotalJobs()
+	if err != nil {
+		log.Fatalf("Failed to connect to db: %v\n", err)
+	}
 
-	database.Delete()
+	err = database.CreateDB(db)
+	if err != nil {
+		log.Fatalf("Failed to create database: %v\n", err)
+	}
+
+	err = database.CreateTable(db)
+	if err != nil {
+		log.Fatalf("Failed to create table: %v\n", err)
+	}
+
+	models.UploadJobCount()
 }

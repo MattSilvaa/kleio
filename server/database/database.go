@@ -4,49 +4,78 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
+	"os"
 )
 
-func Create() error {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/")
+func Connect() (*sql.DB, error) {
+	err := godotenv.Load()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer db.Close()
 
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS kleio")
+	env := os.Getenv("KLEIO_ENV")
+
+	var dsn string
+	if env == "test" {
+		dsn = fmt.Sprintf("%s:%s@tcp(%s)/",
+			os.Getenv("LOCAL_KLEIO_USER"),
+			os.Getenv("LOCAL_KLEIO_PW"),
+			os.Getenv("LOCAL_KLEIO_HOST"),
+		)
+	} else {
+		dsn = fmt.Sprintf("%s:%s@tcp(%s)/",
+			os.Getenv("DB_USER"),
+			os.Getenv("DB_PASSWORD"),
+			os.Getenv("DB_HOST"),
+		)
+	}
+
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	// Test the connection
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("Successfully connected.\n")
+	return db, nil
+}
+
+func CreateDB(db *sql.DB) error {
+	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS kleio")
+	if err != nil {
+		return fmt.Errorf("error creating database: %v", err)
 	}
 
 	fmt.Println("Database 'kleio' created (if it didn't exist)")
 	return nil
 }
 
-func Connect() (*sql.DB, error) {
-	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/kleio")
-	if err != nil {
-		return nil, err
+func CreateTable(db *sql.DB) error {
+	createTableSQL := `CREATE TABLE IF NOT EXISTS kleio.JobCount (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		job_type VARCHAR(255) NOT NULL,
+		location VARCHAR(255) NOT NULL,
+		job_count INT NOT NULL,
+		date DATE NOT NULL
+	);`
+
+	if _, err := db.Exec(createTableSQL); err != nil {
+		return fmt.Errorf("error creating table: %v", err)
 	}
 
-	// Test the connection
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Println("Successfully connected to db")
-	return db, nil
+	fmt.Println("Table created successfully (if it didn't exist)")
+	return nil
 }
 
-func Delete() error {
-	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/kleio")
+func DeleteDB(db *sql.DB) error {
+	_, err := db.Exec("DROP DATABASE IF EXISTS kleio")
 	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec("DROP DATABASE IF EXISTS kleio")
-	if err != nil {
-		return err
+		return fmt.Errorf("error deleting database: %v", err)
 	}
 
 	fmt.Println("Successfully deleted db")
