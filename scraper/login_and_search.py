@@ -1,5 +1,7 @@
 import os
+import sys
 import time
+import urllib
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -11,63 +13,77 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 
-service = Service()
-options = webdriver.ChromeOptions()
-driver = webdriver.Chrome(service=service, options=options)
 
-# Load environment variables from .env file
-load_dotenv()
+def construct_url(job_title, location):
+    base_url = "https://www.linkedin.com/jobs/search/"
+    formatted_url = f"{base_url}?distance=25&keywords={urllib.parse.quote(job_title)}&location={urllib.parse.quote(location)}"
+    return formatted_url
 
-# Retrieve environment variables
-LINKEDIN_USER = os.getenv('LINKEDIN_USER')
-LINKEDIN_PW = os.getenv('LINKEDIN_PW')
 
-# Initialize Selenium WebDriver
+def scraper(url):
+    service = Service()
+    options = webdriver.ChromeOptions()
+    driver = webdriver.Chrome(service=service, options=options)
 
-try:
-    # Navigate to LinkedIn Login Page
-    driver.get("https://www.linkedin.com/login")
+    # Load environment variables from .env file
+    load_dotenv()
 
-    # Enter Username
-    username_element = driver.find_element('id', 'username')
-    username_element.send_keys(LINKEDIN_USER)
+    # Retrieve environment variables
+    LINKEDIN_USER = os.getenv('LINKEDIN_USER')
+    LINKEDIN_PW = os.getenv('LINKEDIN_PW')
 
-    # Enter Password
-    password_element = driver.find_element('id', 'password')
-    password_element.send_keys(LINKEDIN_PW)
-
-    # Submit Login Form
-    password_element.send_keys(Keys.RETURN)
-
-    # Pause to allow login to complete
-    time.sleep(3)
-
-    driver.get(
-        "https://www.linkedin.com/jobs/search/?currentJobId=3694175192&distance=25&geoId=104116203&keywords=Software%20Engineer&location=Seattle%20Washington")
+    # Initialize Selenium WebDriver
 
     try:
-        # Wait up to 10 seconds before throwing a TimeoutException
-        # unless the condition (element is present) is satisfied
-        element_present = EC.presence_of_element_located((By.CLASS_NAME, 'jobs-search-results-list__subtitle'))
-        WebDriverWait(driver, 1000).until(element_present)
+        # Navigate to LinkedIn Login Page
+        driver.get("https://www.linkedin.com/login")
 
-        # Now that we know the element is present, extract the page source
-        page_source = driver.page_source
+        # Enter Username
+        username_element = driver.find_element('id', 'username')
+        username_element.send_keys(LINKEDIN_USER)
 
-        # Parse page source with BeautifulSoup
-        parsed_page_source = BeautifulSoup(page_source, 'html.parser')
+        # Enter Password
+        password_element = driver.find_element('id', 'password')
+        password_element.send_keys(LINKEDIN_PW)
 
-        # Interact with the element
-        job_count_element = parsed_page_source.find(class_='jobs-search-results-list__subtitle')
-        if job_count_element:
-            job_count = job_count_element.get_text(strip=True)
-            print(f"Job count: {job_count}")
-        else:
-            print("Job count element not found")
+        # Submit Login Form
+        password_element.send_keys(Keys.RETURN)
 
-    except TimeoutException:
-        print("Timed out waiting for element to load")
+        # Pause to allow login to complete
+        time.sleep(3)
 
-finally:
-    # Ensure the driver quits, even if there's an error
-    driver.quit()
+        driver.get(url)
+
+        try:
+            # Wait up to 10 seconds before throwing a TimeoutException
+            # unless the condition (element is present) is satisfied
+            element_present = EC.presence_of_element_located((By.CLASS_NAME, 'jobs-search-results-list__subtitle'))
+            WebDriverWait(driver, 1000).until(element_present)
+
+            # Now that we know the element is present, extract the page source
+            page_source = driver.page_source
+
+            # Parse page source with BeautifulSoup
+            parsed_page_source = BeautifulSoup(page_source, 'html.parser')
+
+            # Interact with the element
+            job_count_element = parsed_page_source.find(class_='jobs-search-results-list__subtitle')
+            if job_count_element:
+                job_count = job_count_element.get_text(strip=True)
+                print(f"Job count: {job_count}")
+            else:
+                print("Job count element not found")
+
+        except TimeoutException:
+            print("Timed out waiting for element to load")
+
+    finally:
+        # Ensure the driver quits, even if there's an error
+        driver.quit()
+
+
+if __name__ == "__main__":
+    job_type = sys.argv[1]
+    location = sys.argv[2]
+    final_url = construct_url(job_type, location)
+    scraper(final_url)
