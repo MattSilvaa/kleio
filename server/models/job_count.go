@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strconv"
 	"time"
 )
 
@@ -22,19 +23,19 @@ func GetJobCountByParams(db *sql.DB, date, location, jobType string) (*JobCount,
 	query := `SELECT id, job_type, location, job_count, date FROM JobCount WHERE date = ? AND location = ? AND job_type = ?`
 	row := db.QueryRow(query, date, location, jobType)
 
-	var jobCount JobCount
+	var jobCount *JobCount
 	err := row.Scan(&jobCount.ID, &jobCount.JobType, &jobCount.Location, &jobCount.Count, &jobCount.Date)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch job count: %v", err)
 	}
 
-	return &jobCount, nil
+	return jobCount, nil
 }
 
 // Runs python script and upload results to DB
-func InsertJobCount(db *sql.DB, location, jobCount string) error {
+func InsertJobCount(db *sql.DB, location string, jobType string, jobCount int) error {
 	currentDate := time.Now().Format("02-01-2006")
-	_, err := db.Exec("INSERT INTO job_counts (date, count) VALUES (?, ?)", currentDate, count)
+	_, err := db.Exec("INSERT INTO job_counts (location, job_type, job_count, date) VALUES (?, ? , ?, ?)", location, jobType, jobCount, currentDate)
 	return err
 }
 
@@ -43,6 +44,15 @@ func GetJobCountFromScraper(jobType, location string) (int, error) {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Fatalf("Failed to execute command: %s\nError: %v", cmd, err)
+		return 0, nil
 	}
-	fmt.Printf("Output: %s\n", output)
+
+	jobCountStr := string(output)
+	jobCount, err := strconv.Atoi(jobCountStr)
+	if err != nil {
+		log.Printf("Failed to convert job count string to integer: %s\nError: %v", jobCountStr, err)
+		return 0, err
+	}
+
+	return jobCount, nil
 }

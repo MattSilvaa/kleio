@@ -26,7 +26,8 @@ export const jobTitleSearchOptions = [
     'Web Developer',
 ]
 
-export const jobLocationSearchOptions = ['New York, NY',
+export const jobLocationSearchOptions = [
+    'New York, NY',
     'Austin, TX',
     'Boston, MA',
     'Charlotte, NC',
