@@ -21,6 +21,8 @@ start-backend:
 	cd ${BACKEND_DIR} && go run main.go
 
 
-start: start-backend start-frontend
+start:
+	cd $(BACKEND_DIR) && go run main.go &
+	bun build-client && bun start
 
 .PHONY: build-frontend start-frontend install-backend build-backend start-backend start test-backend lint-backend clean
