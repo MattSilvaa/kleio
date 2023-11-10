@@ -9,6 +9,8 @@ import SearchIcon from '@mui/icons-material/Search'
 import {navBarTheme} from '../theme'
 import {ThemeProvider} from '@mui/material'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import {fetchJobCount} from "../../api/jobServices";
+import {JobLocations, JobTitles} from "../shared";
 
 const pages = ['About', 'FAQ', 'Contact Us']
 
@@ -58,7 +60,7 @@ export const NavBar = () => {
                         {pages.map((page) => (
                             <Button
                                 key={page}
-                                onClick={noop}
+                                onClick={() => fetchJobCount({date: '01-01-2023', location: JobLocations.DENVER, jobType: JobTitles.DATA_SCIENTIST})}
                                 sx={{
                                     my: 2,
                                     color: 'white',

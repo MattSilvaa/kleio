@@ -18,13 +18,13 @@ func Connect() (*sql.DB, error) {
 
 	var dsn string
 	if env == "test" {
-		dsn = fmt.Sprintf("%s:%s@tcp(%s)/",
+		dsn = fmt.Sprintf("%s:%s@tcp(%s)/kleio",
 			os.Getenv("LOCAL_KLEIO_USER"),
 			os.Getenv("LOCAL_KLEIO_PW"),
 			os.Getenv("LOCAL_KLEIO_HOST"),
 		)
 	} else {
-		dsn = fmt.Sprintf("%s:%s@tcp(%s)/",
+		dsn = fmt.Sprintf("%s:%s@tcp(%s)/kleio",
 			os.Getenv("DB_USER"),
 			os.Getenv("DB_PASSWORD"),
 			os.Getenv("DB_HOST"),

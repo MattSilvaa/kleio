@@ -1,7 +1,7 @@
 import React from 'react'
 import {Autocomplete} from '../autocomplete/autocomplete'
-import {jobLocationSearchOptions, jobTitleSearchOptions} from './types'
 import {Container} from '@mui/material'
+import {jobLocationSearchOptions, jobTitleSearchOptions} from "../shared/constants";
 
 // type Props = {}
 

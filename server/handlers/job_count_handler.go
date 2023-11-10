@@ -63,8 +63,8 @@ func FetchJobCount(w http.ResponseWriter, r *http.Request) {
 			}
 
 			jobCount = &models.JobCount{
-				Date:  formattedDate,
-				Count: count,
+				Date:  &formattedDate,
+				Count: &count,
 			}
 		}
 
