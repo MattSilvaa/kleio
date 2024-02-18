@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/MattSilvaa/kleio/server/database"
 	"github.com/MattSilvaa/kleio/server/models"
 	"github.com/MattSilvaa/kleio/server/shared"
-	"net/http"
-	"time"
 )
 
 func FetchJobCount(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +35,8 @@ func FetchJobCount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if jobCount == nil { // Assuming jobCount is of type *JobCount and you return nil if not found
+	if jobCount == nil {
+		// Assuming jobCount is of type *JobCount and you return nil if not found
 		// Lock the critical section
 		shared.ScrapeMutex.Lock()
 
@@ -74,5 +76,9 @@ func FetchJobCount(w http.ResponseWriter, r *http.Request) {
 
 	// Convert the result to JSON and return the response
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(jobCount)
+	err = json.NewEncoder(w).Encode(jobCount)
+	if err != nil {
+		http.Error(w, "Failed to encode job count", http.StatusInternalServerError)
+		return
+	}
 }

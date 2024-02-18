@@ -2,22 +2,24 @@ package main
 
 import (
 	"context"
-	"github.com/MattSilvaa/kleio/server/database"
-	"github.com/MattSilvaa/kleio/server/routes"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/MattSilvaa/kleio/server/database"
+	"github.com/MattSilvaa/kleio/server/routes"
 )
 
 func main() {
 	db, err := database.Connect()
-	defer db.Close()
 	if err != nil {
 		log.Fatalf("Failed to connect to db: %v\n", err)
 	}
+
+	defer db.Close()
 
 	err = database.CreateDB(db)
 	if err != nil {

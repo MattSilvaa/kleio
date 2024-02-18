@@ -15,7 +15,7 @@ install-backend:
 	cd $(BACKEND_DIR) && go mod tidy
 
 lint-backend:
-	cd $(BACKEND_DIR) && golint ./...
+	cd $(BACKEND_DIR) && golangci-lint run ./...
 
 start-backend:
 	cd ${BACKEND_DIR} && go run main.go
