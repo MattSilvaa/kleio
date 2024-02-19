@@ -14,9 +14,9 @@ import (
 )
 
 func main() {
-	db, err := database.Connect()
+	db, err := database.ConnectToSQL()
 	if err != nil {
-		log.Fatalf("Failed to connect to db: %v\n", err)
+		log.Fatalf("Failed to connect to SQL: %v\n", err)
 	}
 
 	defer db.Close()

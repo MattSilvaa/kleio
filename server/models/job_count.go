@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"log"
@@ -22,6 +23,7 @@ type JobCount struct {
 
 // GetJobCountByParams fetches the job count based on the given parameters
 func GetJobCountByParams(db *sql.DB, date, location, jobType string) (*JobCount, error) {
+	fmt.Printf("date is %v and location is %v and job type is %v", date, location, jobType)
 	query := `SELECT id, job_type, location, job_count, date FROM JobCount WHERE date = ? AND location = ? AND job_type = ?`
 	row := db.QueryRow(query, date, location, jobType)
 
@@ -46,11 +48,14 @@ func InsertJobCount(db *sql.DB, location string, jobType string, jobCount int) e
 }
 
 func GetJobCountFromScraper(jobType, location string) (int, error) {
-	cmd := exec.Command("python3", "scraper/login_and_search.py", jobType, location)
-	output, err := cmd.CombinedOutput()
+	cmd := exec.Command("python3", "../scraper/login_and_search.py", jobType, location)
+
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	output, err := cmd.Output() // Use Output() instead of CombinedOutput() to separate stdout and stderr
 	if err != nil {
-		log.Fatalf("Failed to execute command: %s\nError: %v", cmd, err)
-		return 0, nil
+		log.Printf("Script output: %s", output)
+		log.Fatalf("Script error: %v, Stderr: %s", err, stderr.String())
 	}
 
 	jobCountStr := string(output)

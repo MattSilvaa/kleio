@@ -16,7 +16,7 @@ func FetchJobCount(w http.ResponseWriter, r *http.Request) {
 	location := r.URL.Query().Get("location")
 	jobType := r.URL.Query().Get("jobType")
 
-	db, err := database.Connect()
+	db, err := database.ConnectToKleio()
 	if err != nil {
 		http.Error(w, "Failed to connect to database", http.StatusServiceUnavailable)
 		return

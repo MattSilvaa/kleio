@@ -1,9 +1,10 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/MattSilvaa/kleio/server/handlers"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 func enableCORS(next http.Handler) http.Handler {

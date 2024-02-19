@@ -9,6 +9,8 @@ dist/
 *.dylib
 *.test
 
+pyenv/
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 

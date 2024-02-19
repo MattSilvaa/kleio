@@ -3,60 +3,115 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	"os"
 )
 
-func Connect() (*sql.DB, error) {
+func loadEnv() error {
 	err := godotenv.Load()
 	if err != nil {
-		return nil, err
+		log.Printf("Error loading .env file: %v", err)
+		return err
 	}
-
-	env := os.Getenv("KLEIO_ENV")
-
-	var dsn string
-	if env == "test" {
-		dsn = fmt.Sprintf("%s:%s@tcp(%s)/kleio",
-			os.Getenv("LOCAL_KLEIO_USER"),
-			os.Getenv("LOCAL_KLEIO_PW"),
-			os.Getenv("LOCAL_KLEIO_HOST"),
-		)
-	} else {
-		dsn = fmt.Sprintf("%s:%s@tcp(%s)/kleio",
-			os.Getenv("DB_USER"),
-			os.Getenv("DB_PASSWORD"),
-			os.Getenv("DB_HOST"),
-		)
-	}
-
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	// Test the connection
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-
-	fmt.Printf("Successfully connected.\n")
-	return db, nil
-}
-
-func CreateDB(db *sql.DB) error {
-	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS kleio")
-	if err != nil {
-		return fmt.Errorf("error creating database: %v", err)
-	}
-
-	fmt.Println("Database 'kleio' created (if it didn't exist)")
 	return nil
 }
 
+// getDSN constructs and returns the Data Source Name (DSN) string based on the current environment.
+func getDSN(useKleio bool) (string, error) {
+	if err := loadEnv(); err != nil {
+		return "", err
+	}
+
+	env := os.Getenv("ENV")
+	var schema string
+	if useKleio {
+		schema = "kleio"
+	}
+
+	var dsn string
+	switch env {
+	case "test":
+		dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s",
+			os.Getenv("LOCAL_KLEIO_USER"),
+			os.Getenv("LOCAL_KLEIO_PW"),
+			os.Getenv("LOCAL_KLEIO_HOST"),
+			schema,
+		)
+	default:
+		dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s",
+			os.Getenv("DB_USER"),
+			os.Getenv("DB_PASSWORD"),
+			os.Getenv("DB_HOST"),
+			schema,
+		)
+	}
+
+	return dsn, nil
+}
+
+func ConnectToSQL() (*sql.DB, error) {
+	dsn, err := getDSN(false)
+	if err != nil {
+		log.Printf("Error getting dsn: %v", err)
+		return nil, err
+	}
+
+	// Open a new database connection.
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Printf("Error opening database: %v", err)
+		return nil, err
+	}
+	// Test the database connection.
+	if err := db.Ping(); err != nil {
+		log.Printf("Error pinging database: %v", err)
+		return nil, err
+	}
+
+	log.Println("Successfully connected to the database.")
+	return db, nil
+}
+
+func ConnectToKleio() (*sql.DB, error) {
+	dsn, err := getDSN(true)
+
+	if err != nil {
+		log.Printf("Error getting dsn: %v", err)
+		return nil, err
+	}
+	// Open a new database connection.
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Printf("Error opening database: %v", err)
+		return nil, err
+	}
+	// Test the database connection.
+	if err := db.Ping(); err != nil {
+		log.Printf("Error pinging database: %v", err)
+		return nil, err
+	}
+
+	log.Println("Successfully connected to the database.")
+	return db, nil
+}
+
+// CreateDB creates the database if it does not exist.
+func CreateDB(db *sql.DB) error {
+	if _, err := db.Exec("CREATE DATABASE IF NOT EXISTS kleio"); err != nil {
+		return fmt.Errorf("error creating database: %v", err)
+	}
+
+	log.Println("Database 'kleio' created (if it didn't exist)")
+	return nil
+}
+
+// CreateTable creates a new table in the database if it does not exist.
 func CreateTable(db *sql.DB) error {
-	createTableSQL := `CREATE TABLE IF NOT EXISTS kleio.JobCount (
+	createTableSQL := `
+	CREATE TABLE IF NOT EXISTS JobCount (
 		id INT AUTO_INCREMENT PRIMARY KEY,
 		job_type VARCHAR(255) NOT NULL,
 		location VARCHAR(255) NOT NULL,
@@ -64,20 +119,24 @@ func CreateTable(db *sql.DB) error {
 		date DATE NOT NULL
 	);`
 
+	if _, err := db.Exec("USE kleio;"); err != nil {
+		return fmt.Errorf("error using kleio: %v", err)
+	}
+
 	if _, err := db.Exec(createTableSQL); err != nil {
 		return fmt.Errorf("error creating table: %v", err)
 	}
 
-	fmt.Println("Table created successfully (if it didn't exist)")
+	log.Println("Table 'JobCount' created successfully (if it didn't exist)")
 	return nil
 }
 
+// DeleteDB drops the database.
 func DeleteDB(db *sql.DB) error {
-	_, err := db.Exec("DROP DATABASE IF EXISTS kleio")
-	if err != nil {
+	if _, err := db.Exec("DROP DATABASE IF EXISTS kleio"); err != nil {
 		return fmt.Errorf("error deleting database: %v", err)
 	}
 
-	fmt.Println("Successfully deleted db")
+	log.Println("Successfully deleted database 'kleio'")
 	return nil
 }

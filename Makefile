@@ -1,3 +1,10 @@
+.PHONY: start-frontend install-backend build-backend start-backend start-all lint-backend clean-backend
+
+start-all:
+	@$(MAKE) start-backend & \
+	$(MAKE) start-frontend & \
+	wait
+
 # Frontend tasks
 start-frontend:
 	bun build-client && bun start
@@ -8,8 +15,12 @@ BACKEND_DIR := server
 build-backend:
 	cd ${BACKEND_DIR} && go build -o dist
 
-clean:
+clean-backend:
 	rm -f $(BACKEND_DIR)/dist
+
+format-backend:
+	@echo "Formatting code..."
+	cd $(BACKEND_DIR) && goimports -w .
 
 install-backend:
 	cd $(BACKEND_DIR) && go mod tidy
@@ -19,10 +30,3 @@ lint-backend:
 
 start-backend:
 	cd ${BACKEND_DIR} && go run main.go
-
-
-start:
-	cd $(BACKEND_DIR) && go run main.go &
-	bun build-client && bun start
-
-.PHONY: build-frontend start-frontend install-backend build-backend start-backend start test-backend lint-backend clean
